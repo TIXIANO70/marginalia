@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+@theme {
+  --color-canto-bg: #FAF7F2;
+  --color-canto-paper: #F5EFEB;
+  --color-canto-card: #FFFDF9;
+  --color-canto-border: #E8DFD5;
+  --color-canto-text: #2C2523;
+  --color-canto-muted: #786C65;
+  --color-canto-light: #A89C94;
+  --color-canto-accent: #B45309;
+  --color-canto-accent-hover: #92400E;
+  --color-canto-highlight: #FEF3C7;
+  --color-canto-highlight-border: #F59E0B;
+  --color-canto-highlight-active: #FDE68A;
+
+  --font-literary: Lora, Merriweather, Georgia, serif;
+  --font-classic: "Playfair Display", Didot, "Bodoni MT", serif;
+  --font-warm-sans: "Plus Jakarta Sans", Inter, system-ui, sans-serif;
+  --font-poetic-mono: "Space Mono", "JetBrains Mono", monospace;
+}
+
+/* Scrollbar personalizada suave y cálida */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #E8DFD5;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #D9CEBE;
+}

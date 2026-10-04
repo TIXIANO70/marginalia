@@ -18,13 +18,18 @@ export interface UsePoemStateReturn {
   isSaving: boolean;
 }
 
-export function usePoemState(initialPoem: PoemDocument = DEFAULT_POEM): UsePoemStateReturn {
-  const [poem] = useState<PoemDocument>(initialPoem);
+export function usePoemState(activePoem: PoemDocument = DEFAULT_POEM): UsePoemStateReturn {
+  const poem = activePoem;
   const [translation, setTranslationState] = useState<string>(() => {
-    return storageService.getTranslation(initialPoem.id);
+    return storageService.getTranslation(activePoem.id);
   });
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Sincronizar traducción cuando cambia la obra activa
+  useEffect(() => {
+    setTranslationState(storageService.getTranslation(activePoem.id));
+  }, [activePoem.id]);
 
   // Guardado persistente con debounce de 300ms
   const setTranslation = useCallback((newText: string) => {

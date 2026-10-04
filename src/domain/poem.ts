@@ -21,10 +21,17 @@ export interface Stanza {
   readonly verses: readonly Verse[];
 }
 
+export type PoemStatus = 'in-progress' | 'completed';
+
 export interface PoemDocument {
   readonly id: string;
   readonly title: string;
   readonly author: string;
   readonly verses: readonly Verse[];
   readonly stanzas: readonly Stanza[];
+  readonly status: PoemStatus;
+  readonly originalLabel?: string;
+  readonly translationLabel?: string;
+  readonly tags?: readonly string[];
+  readonly updatedAt: string;
 }

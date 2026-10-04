@@ -57,10 +57,21 @@ export const CommentThreadCard: React.FC<CommentThreadCardProps> = ({
     >
       {/* Cabecera del hilo */}
       <div className="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-canto-border/50">
-        <span className="inline-flex items-center gap-1 text-[11px] font-mono font-semibold px-2 py-0.5 rounded-md bg-amber-100/80 text-amber-900 border border-amber-200">
-          <MessageSquare className="w-3 h-3 text-amber-700" />
-          {rangeLabel}
-        </span>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="inline-flex items-center gap-1 text-[11px] font-mono font-semibold px-2 py-0.5 rounded-md bg-amber-100/80 text-amber-900 border border-amber-200">
+            <MessageSquare className="w-3 h-3 text-amber-700" />
+            {rangeLabel}
+          </span>
+          <span
+            className={`text-[10px] font-semibold px-1.5 py-0.2 rounded ${
+              thread.column === 'translation'
+                ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                : 'bg-amber-50 text-amber-800 border border-amber-200/80'
+            }`}
+          >
+            {thread.column === 'translation' ? 'Traducción' : 'Original'}
+          </span>
+        </div>
 
         {/* Acciones del hilo: Resolver y Eliminar */}
         <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>

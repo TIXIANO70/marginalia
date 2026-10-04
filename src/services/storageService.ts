@@ -3,8 +3,10 @@
  * @description Servicio de persistencia desacoplado para LocalStorage con fallback en memoria.
  */
 
+import { PoemDocument } from '@/domain/poem';
 import { CommentThread } from '@/domain/comment';
 import { ReaderSettings, DEFAULT_READER_SETTINGS } from '@/domain/settings';
+import { DEFAULT_POEM } from './defaultPoem';
 
 export interface IStorageBackend {
   getItem(key: string): string | null;
@@ -126,6 +128,75 @@ export class StorageService {
       this.backend.setItem(this.getKey('settings'), JSON.stringify(settings));
     } catch (error) {
       console.warn('[StorageService] Error al guardar configuración:', error);
+    }
+  }
+
+  // --- Catálogo de Obras (Biblioteca de Letras) ---
+  public getAllPoems(): PoemDocument[] {
+    try {
+      const raw = this.backend.getItem(this.getKey('library'));
+      if (!raw) {
+        // Inicializar con la obra por defecto
+        this.savePoem(DEFAULT_POEM);
+        return [DEFAULT_POEM];
+      }
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+      return [DEFAULT_POEM];
+    } catch {
+      return [DEFAULT_POEM];
+    }
+  }
+
+  public savePoem(poem: PoemDocument): void {
+    try {
+      const poems = this.getAllPoems();
+      const existingIndex = poems.findIndex((p) => p.id === poem.id);
+      let updated: PoemDocument[];
+      if (existingIndex >= 0) {
+        updated = [...poems];
+        updated[existingIndex] = poem;
+      } else {
+        updated = [poem, ...poems];
+      }
+      this.backend.setItem(this.getKey('library'), JSON.stringify(updated));
+    } catch (error) {
+      console.warn('[StorageService] Error al guardar obra en biblioteca:', error);
+    }
+  }
+
+  public deletePoem(poemId: string): void {
+    try {
+      const poems = this.getAllPoems().filter((p) => p.id !== poemId);
+      this.backend.setItem(
+        this.getKey('library'),
+        JSON.stringify(poems.length > 0 ? poems : [DEFAULT_POEM])
+      );
+      this.clearPoemData(poemId);
+      if (this.getActivePoemId() === poemId) {
+        this.setActivePoemId(poems.length > 0 ? poems[0].id : DEFAULT_POEM.id);
+      }
+    } catch (error) {
+      console.warn('[StorageService] Error al eliminar obra de biblioteca:', error);
+    }
+  }
+
+  public getActivePoemId(): string {
+    try {
+      const activeId = this.backend.getItem(this.getKey('activePoemId'));
+      return activeId || DEFAULT_POEM.id;
+    } catch {
+      return DEFAULT_POEM.id;
+    }
+  }
+
+  public setActivePoemId(id: string): void {
+    try {
+      this.backend.setItem(this.getKey('activePoemId'), id);
+    } catch (error) {
+      console.warn('[StorageService] Error al establecer obra activa:', error);
     }
   }
 

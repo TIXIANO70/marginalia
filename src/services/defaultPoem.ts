@@ -119,6 +119,11 @@ function buildPoemDocument(): PoemDocument {
     author: 'Phillip Phillips',
     verses: Object.freeze(allVerses),
     stanzas: Object.freeze(stanzas),
+    status: 'in-progress',
+    originalLabel: 'Texto Original (Inglés)',
+    translationLabel: 'Versión en Español',
+    tags: Object.freeze(['Canción', 'Folk Rock']),
+    updatedAt: new Date().toISOString(),
   };
 }
 

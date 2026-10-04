@@ -7,6 +7,7 @@ describe('Component: Header', () => {
     const onFontFamilyChange = vi.fn();
     const onFontSizeChange = vi.fn();
     const onToggleSidebar = vi.fn();
+    const onToggleLibrary = vi.fn();
     const onResetTranslation = vi.fn();
 
     render(
@@ -19,6 +20,8 @@ describe('Component: Header', () => {
         onFontSizeChange={onFontSizeChange}
         isSidebarOpen={false}
         onToggleSidebar={onToggleSidebar}
+        isLibraryOpen={false}
+        onToggleLibrary={onToggleLibrary}
         activeCommentsCount={2}
         isSaving={false}
         onResetTranslation={onResetTranslation}
@@ -43,6 +46,8 @@ describe('Component: Header', () => {
         onFontSizeChange={vi.fn()}
         isSidebarOpen={false}
         onToggleSidebar={vi.fn()}
+        isLibraryOpen={false}
+        onToggleLibrary={vi.fn()}
         activeCommentsCount={0}
         isSaving={false}
         onResetTranslation={vi.fn()}
@@ -72,6 +77,8 @@ describe('Component: Header', () => {
         onFontSizeChange={vi.fn()}
         isSidebarOpen={false}
         onToggleSidebar={onToggleSidebar}
+        isLibraryOpen={false}
+        onToggleLibrary={vi.fn()}
         activeCommentsCount={0}
         isSaving={false}
         onResetTranslation={vi.fn()}
@@ -82,5 +89,32 @@ describe('Component: Header', () => {
     fireEvent.click(sidebarBtn);
 
     expect(onToggleSidebar).toHaveBeenCalledTimes(1);
+  });
+
+  it('debe alternar la biblioteca al presionar el botón de menú lateral', () => {
+    const onToggleLibrary = vi.fn();
+
+    render(
+      <Header
+        title="Gone, Gone, Gone"
+        author="Phillip Phillips"
+        fontFamily="serif-literary"
+        fontSize="base"
+        onFontFamilyChange={vi.fn()}
+        onFontSizeChange={vi.fn()}
+        isSidebarOpen={false}
+        onToggleSidebar={vi.fn()}
+        isLibraryOpen={false}
+        onToggleLibrary={onToggleLibrary}
+        activeCommentsCount={0}
+        isSaving={false}
+        onResetTranslation={vi.fn()}
+      />
+    );
+
+    const libraryBtn = screen.getByLabelText('Alternar biblioteca de letras');
+    fireEvent.click(libraryBtn);
+
+    expect(onToggleLibrary).toHaveBeenCalledTimes(1);
   });
 });

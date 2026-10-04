@@ -10,6 +10,7 @@ import { VerseRange } from '@/domain/comment';
 interface NewCommentModalProps {
   isOpen: boolean;
   range: VerseRange | null;
+  column?: 'original' | 'translation';
   onClose: () => void;
   onSubmit: (author: string, content: string) => void;
 }
@@ -17,6 +18,7 @@ interface NewCommentModalProps {
 export const NewCommentModal: React.FC<NewCommentModalProps> = ({
   isOpen,
   range,
+  column = 'original',
   onClose,
   onSubmit,
 }) => {
@@ -35,8 +37,11 @@ export const NewCommentModal: React.FC<NewCommentModalProps> = ({
 
   if (!isOpen || !range) return null;
 
+  const columnLabel = column === 'translation' ? 'Traducción' : 'Original';
   const rangeLabel =
-    range.start === range.end ? `Verso ${range.start}` : `Versos ${range.start} al ${range.end}`;
+    range.start === range.end
+      ? `Verso ${range.start} (${columnLabel})`
+      : `Versos ${range.start} al ${range.end} (${columnLabel})`;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

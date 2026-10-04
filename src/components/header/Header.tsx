@@ -12,6 +12,7 @@ import {
   RotateCcw,
   Check,
   CheckCircle2,
+  PanelLeft,
 } from 'lucide-react';
 import { FontFamily, FontSize, FONT_OPTIONS, FONT_SIZE_OPTIONS } from '@/domain/settings';
 
@@ -24,6 +25,8 @@ interface HeaderProps {
   onFontSizeChange: (size: FontSize) => void;
   isSidebarOpen: boolean;
   onToggleSidebar: () => void;
+  isLibraryOpen: boolean;
+  onToggleLibrary: () => void;
   activeCommentsCount: number;
   isSaving: boolean;
   onResetTranslation: () => void;
@@ -38,6 +41,8 @@ export const Header: React.FC<HeaderProps> = ({
   onFontSizeChange,
   isSidebarOpen,
   onToggleSidebar,
+  isLibraryOpen,
+  onToggleLibrary,
   activeCommentsCount,
   isSaving,
   onResetTranslation,
@@ -60,17 +65,31 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="sticky top-0 z-30 bg-canto-paper/95 backdrop-blur-sm border-b border-canto-border transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-        {/* Logo y Metadatos de la obra */}
+        {/* Toggle Biblioteca y Metadatos de la obra */}
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-9 h-9 rounded-lg bg-amber-100 border border-amber-200 flex items-center justify-center text-canto-accent flex-shrink-0 shadow-xs">
-            <BookOpen className="w-5 h-5" />
+          {/* Botón de Biblioteca estilo ChatGPT/Gemini */}
+          <button
+            onClick={onToggleLibrary}
+            className={`p-2 rounded-lg border transition shadow-2xs ${
+              isLibraryOpen
+                ? 'bg-amber-100 text-amber-900 border-amber-300'
+                : 'bg-canto-card text-canto-muted hover:text-canto-text border-canto-border hover:bg-amber-50'
+            }`}
+            title="Alternar biblioteca de letras (sidebar)"
+            aria-label="Alternar biblioteca de letras"
+          >
+            <PanelLeft className="w-4 h-4" />
+          </button>
+
+          <div className="w-8 h-8 rounded-lg bg-amber-100 border border-amber-200 flex items-center justify-center text-canto-accent flex-shrink-0 shadow-xs hidden sm:flex">
+            <BookOpen className="w-4 h-4" />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <h1 className="font-classic text-xl font-bold tracking-tight text-canto-text truncate">
                 Canto
               </h1>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100/80 text-amber-800 font-medium">
+              <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100/80 text-amber-800 font-medium hidden md:inline">
                 Dual
               </span>
             </div>

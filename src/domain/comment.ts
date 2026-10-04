@@ -19,6 +19,7 @@ export interface CommentThread {
   readonly id: string;
   readonly verseStart: number;
   readonly verseEnd: number;
+  readonly column?: 'original' | 'translation';
   readonly resolved: boolean;
   readonly createdAt: string; // ISO 8601
   readonly comments: readonly CommentItem[];
@@ -27,7 +28,14 @@ export interface CommentThread {
 /**
  * Determina si un número de verso se encuentra comprendido dentro del rango de un hilo.
  */
-export function isVerseInThread(verseId: number, thread: CommentThread): boolean {
+export function isVerseInThread(
+  verseId: number,
+  thread: CommentThread,
+  column?: 'original' | 'translation'
+): boolean {
+  if (column && thread.column && thread.column !== column) {
+    return false;
+  }
   return verseId >= thread.verseStart && verseId <= thread.verseEnd;
 }
 
@@ -55,6 +63,7 @@ export function createCommentThread(params: {
   range: VerseRange;
   author: string;
   content: string;
+  column?: 'original' | 'translation';
   timestamp?: string;
 }): CommentThread {
   const now = params.timestamp ?? new Date().toISOString();
@@ -69,6 +78,7 @@ export function createCommentThread(params: {
     id: params.id,
     verseStart: params.range.start,
     verseEnd: params.range.end,
+    column: params.column ?? 'original',
     resolved: false,
     createdAt: now,
     comments: [initialComment],

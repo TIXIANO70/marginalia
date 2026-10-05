@@ -11,7 +11,7 @@ describe('Component: Canto App Integration', () => {
   it('debe renderizar la cabecera con el título de la canción y el autor', () => {
     render(<App />);
 
-    expect(screen.getByRole('heading', { name: /Canto/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Marginalia/i })).toBeInTheDocument();
     expect(screen.getAllByText(/Gone, Gone, Gone/i)[0]).toBeInTheDocument();
     expect(screen.getAllByText(/Phillip Phillips/i)[0]).toBeInTheDocument();
   });

@@ -87,7 +87,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <h1 className="font-classic text-xl font-bold tracking-tight text-canto-text truncate">
-                Canto
+                Marginalia
               </h1>
               <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100/80 text-amber-800 font-medium hidden md:inline">
                 Dual

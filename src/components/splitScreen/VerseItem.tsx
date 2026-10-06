@@ -16,6 +16,8 @@ interface VerseItemProps {
   fontClass: string;
   sizeClasses: { verse: string; number: string };
   onClick: (e: React.MouseEvent) => void;
+  onMouseDown?: (e: React.MouseEvent) => void;
+  onMouseEnter?: (e: React.MouseEvent) => void;
   onAddComment?: () => void;
 }
 
@@ -28,6 +30,8 @@ export const VerseItem: React.FC<VerseItemProps> = React.memo(({
   fontClass,
   sizeClasses,
   onClick,
+  onMouseDown,
+  onMouseEnter,
   onAddComment,
 }) => {
   // Estados visuales de selección y comentario
@@ -44,6 +48,8 @@ export const VerseItem: React.FC<VerseItemProps> = React.memo(({
   return (
     <div
       onClick={onClick}
+      onMouseDown={onMouseDown}
+      onMouseEnter={onMouseEnter}
       data-verse-id={verse.id}
       className={`group relative flex items-center justify-center px-10 py-2.5 rounded-lg cursor-pointer transition-all duration-150 select-none ${highlightStyles}`}
     >

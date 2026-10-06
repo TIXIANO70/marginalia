@@ -114,46 +114,50 @@ export const SplitScreenLayout: React.FC<SplitScreenLayoutProps> = ({
   }, [syncScroll]);
 
   return (
-    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-canto-border h-[calc(100vh-4rem)] overflow-hidden">
+    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-canto-border h-[calc(100vh-4rem)] overflow-hidden min-h-0">
       {/* Columna Izquierda: Original */}
-      <OriginalColumn
-        poem={poem}
-        selectionRange={originalSelectionRange}
-        focusedThreadRange={focusedThreadRange}
-        isVerseSelected={isOriginalVerseSelected}
-        onSelectVerse={onSelectOriginalVerse}
-        onClearSelection={onClearOriginalSelection}
-        onOpenNewComment={onOpenOriginalComment}
-        onUpdateLabel={onUpdateOriginalLabel}
-        hasCommentsOnVerse={hasOriginalComments}
-        getCommentsCount={getOriginalCommentsCount}
-        fontClass={fontClass}
-        sizeClasses={sizeClasses}
-        scrollRef={leftScrollRef}
-        onScroll={handleLeftScroll}
-      />
+      <div className="h-full min-h-0 overflow-hidden flex flex-col">
+        <OriginalColumn
+          poem={poem}
+          selectionRange={originalSelectionRange}
+          focusedThreadRange={focusedThreadRange}
+          isVerseSelected={isOriginalVerseSelected}
+          onSelectVerse={onSelectOriginalVerse}
+          onClearSelection={onClearOriginalSelection}
+          onOpenNewComment={onOpenOriginalComment}
+          onUpdateLabel={onUpdateOriginalLabel}
+          hasCommentsOnVerse={hasOriginalComments}
+          getCommentsCount={getOriginalCommentsCount}
+          fontClass={fontClass}
+          sizeClasses={sizeClasses}
+          scrollRef={leftScrollRef}
+          onScroll={handleLeftScroll}
+        />
+      </div>
 
       {/* Columna Derecha: Traducción libre (Modo Lectura / Edición) */}
-      <TranslationEditor
-        translation={translation}
-        onChange={onTranslationChange}
-        alignedPairs={alignedPairs}
-        totalVerses={poem.verses.length}
-        translationLabel={poem.translationLabel}
-        onUpdateLabel={onUpdateTranslationLabel}
-        fontClass={fontClass}
-        sizeClasses={sizeClasses}
-        scrollRef={rightScrollRef}
-        onScroll={handleRightScroll}
-        selectionRange={translationSelectionRange}
-        focusedThreadRange={focusedThreadRange}
-        isVerseSelected={isTranslationVerseSelected}
-        onSelectVerse={onSelectTranslationVerse}
-        onClearSelection={onClearTranslationSelection}
-        onOpenNewComment={onOpenTranslationComment}
-        hasCommentsOnVerse={hasTranslationComments}
-        getCommentsCount={getTranslationCommentsCount}
-      />
+      <div className="h-full min-h-0 overflow-hidden flex flex-col">
+        <TranslationEditor
+          translation={translation}
+          onChange={onTranslationChange}
+          alignedPairs={alignedPairs}
+          totalVerses={poem.verses.length}
+          translationLabel={poem.translationLabel}
+          onUpdateLabel={onUpdateTranslationLabel}
+          fontClass={fontClass}
+          sizeClasses={sizeClasses}
+          scrollRef={rightScrollRef}
+          onScroll={handleRightScroll}
+          selectionRange={translationSelectionRange}
+          focusedThreadRange={focusedThreadRange}
+          isVerseSelected={isTranslationVerseSelected}
+          onSelectVerse={onSelectTranslationVerse}
+          onClearSelection={onClearTranslationSelection}
+          onOpenNewComment={onOpenTranslationComment}
+          hasCommentsOnVerse={hasTranslationComments}
+          getCommentsCount={getTranslationCommentsCount}
+        />
+      </div>
     </div>
   );
 };

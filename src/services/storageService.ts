@@ -136,8 +136,8 @@ export class StorageService {
     try {
       const raw = this.backend.getItem(this.getKey('library'));
       if (!raw) {
-        // Inicializar con la obra por defecto
-        this.savePoem(DEFAULT_POEM);
+        // Inicializar con la obra por defecto directamente sin recursión circular
+        this.backend.setItem(this.getKey('library'), JSON.stringify([DEFAULT_POEM]));
         return [DEFAULT_POEM];
       }
       const parsed = JSON.parse(raw);

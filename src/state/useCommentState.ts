@@ -33,12 +33,13 @@ export interface UseCommentStateReturn {
     isShiftKey?: boolean
   ) => void;
   clearSelection: () => void;
+  setSelectionRange: (range: VerseRange | null | ((prev: VerseRange | null) => VerseRange | null)) => void;
   isVerseSelected: (verseId: number, column?: 'original' | 'translation') => boolean;
 
   // Acciones de hilos
   openNewCommentModal: (range?: VerseRange, column?: 'original' | 'translation') => void;
   closeNewCommentModal: () => void;
-  createThread: (author: string, content: string) => void;
+  createThread: (author: string, content: string, customRange?: VerseRange) => void;
   replyToThread: (threadId: string, author: string, content: string) => void;
   toggleResolveThread: (threadId: string) => void;
   deleteThread: (threadId: string) => void;
@@ -140,12 +141,13 @@ export function useCommentState(poemId: string): UseCommentStateReturn {
   }, []);
 
   const createThread = useCallback(
-    (author: string, content: string) => {
-      if (!selectionRange || !content.trim()) return;
+    (author: string, content: string, customRange?: VerseRange) => {
+      const effectiveRange = customRange || selectionRange;
+      if (!effectiveRange || !content.trim()) return;
 
       const newThread = createCommentThread({
         id: `thread-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-        range: selectionRange,
+        range: effectiveRange,
         column: selectedColumn,
         author,
         content,
@@ -224,6 +226,7 @@ export function useCommentState(poemId: string): UseCommentStateReturn {
     activeTab,
     selectVerse,
     clearSelection,
+    setSelectionRange,
     isVerseSelected,
     openNewCommentModal,
     closeNewCommentModal,

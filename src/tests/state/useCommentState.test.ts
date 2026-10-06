@@ -55,4 +55,22 @@ describe('State Hook: useCommentState', () => {
     });
     expect(result.current.threads).toHaveLength(0);
   });
+
+  it('debe permitir crear hilos con customRange multiverso específico', () => {
+    const customPoemId = 'multi-verse-test';
+    storageService.clearPoemData(customPoemId);
+    const { result } = renderHook(() => useCommentState(customPoemId));
+
+    act(() => {
+      result.current.createThread('Analista', 'Comentario de estrofa completa', { start: 5, end: 12 });
+    });
+
+    expect(result.current.threads).toHaveLength(1);
+    expect(result.current.threads[0].verseStart).toBe(5);
+    expect(result.current.threads[0].verseEnd).toBe(12);
+    expect(result.current.hasCommentsOnVerse(5)).toBe(true);
+    expect(result.current.hasCommentsOnVerse(8)).toBe(true);
+    expect(result.current.hasCommentsOnVerse(12)).toBe(true);
+    expect(result.current.hasCommentsOnVerse(13)).toBe(false);
+  });
 });

@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useRef } from 'react';
-import { MessageSquarePlus, X, Edit3, Check } from 'lucide-react';
+import { MessageSquarePlus, X, Edit3, Check, Plus, Minus } from 'lucide-react';
 import { PoemDocument } from '@/domain/poem';
 import { VerseRange } from '@/domain/comment';
 import { VerseItem } from './VerseItem';
@@ -45,6 +45,7 @@ export const OriginalColumn: React.FC<OriginalColumnProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [isEditingLabel, setIsEditingLabel] = useState(false);
   const [customLabel, setCustomLabel] = useState(poem.originalLabel ?? 'Texto Original (Inglés)');
+  const [isDragging, setIsDragging] = useState(false);
 
   const handleSaveLabel = () => {
     setIsEditingLabel(false);
@@ -58,8 +59,26 @@ export const OriginalColumn: React.FC<OriginalColumnProps> = ({
     return verseId >= focusedThreadRange.start && verseId <= focusedThreadRange.end;
   };
 
+  const handleMouseDownVerse = (verseId: number) => {
+    setIsDragging(true);
+    onSelectVerse(verseId, false);
+  };
+
+  const handleMouseEnterVerse = (verseId: number) => {
+    if (isDragging) {
+      onSelectVerse(verseId, true);
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
   return (
-    <div className="flex flex-col h-full bg-canto-card border-r border-canto-border relative">
+    <div
+      onMouseUp={handleMouseUp}
+      className="flex flex-col h-full min-h-0 bg-canto-card border-r border-canto-border relative"
+    >
       {/* Cabecera de la columna con titular editable */}
       <div className="p-3 border-b border-canto-border/80 bg-canto-paper/60 flex items-center justify-between">
         <div className="flex items-center gap-2 flex-1 min-w-0 mr-2">
@@ -105,8 +124,8 @@ export const OriginalColumn: React.FC<OriginalColumnProps> = ({
         onScroll={onScroll}
         className="flex-1 overflow-y-auto px-4 sm:px-8 py-8 pb-40 space-y-6"
       >
-        {/* Título poético centrado */}
-        <div className="text-center mb-8 pb-4 border-b border-canto-border/50 max-w-md mx-auto">
+        {/* Título poético centrado con altura mínima normalizada */}
+        <div className="text-center mb-8 pb-4 border-b border-canto-border/50 max-w-md mx-auto min-h-[96px] flex flex-col justify-center">
           <h2 className="font-classic text-2xl sm:text-3xl font-bold text-canto-text tracking-wide mb-1">
             {poem.title}
           </h2>
@@ -133,6 +152,8 @@ export const OriginalColumn: React.FC<OriginalColumnProps> = ({
                   fontClass={fontClass}
                   sizeClasses={sizeClasses}
                   onClick={(e) => onSelectVerse(verse.id, e.shiftKey)}
+                  onMouseDown={() => handleMouseDownVerse(verse.id)}
+                  onMouseEnter={() => handleMouseEnterVerse(verse.id)}
                   onAddComment={() => onOpenNewComment({ start: verse.id, end: verse.id })}
                 />
               ))}
@@ -150,6 +171,37 @@ export const OriginalColumn: React.FC<OriginalColumnProps> = ({
                 ? `Verso ${selectionRange.start}`
                 : `Versos ${selectionRange.start}–${selectionRange.end}`}
             </span>
+            {/* Controles para ampliar o contraer rango de versos */}
+            <div className="flex items-center gap-1 px-1 bg-white/10 rounded-full">
+              <button
+                type="button"
+                onClick={() => {
+                  if (selectionRange.start < selectionRange.end) {
+                    onSelectVerse(selectionRange.end - 1, true);
+                  }
+                }}
+                disabled={selectionRange.start === selectionRange.end}
+                className="p-0.5 rounded-full text-amber-200 hover:text-white disabled:opacity-30 transition"
+                title="Reducir 1 verso"
+                aria-label="Reducir 1 verso"
+              >
+                <Minus className="w-3 h-3" />
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (selectionRange.end < poem.verses.length) {
+                    onSelectVerse(selectionRange.end + 1, true);
+                  }
+                }}
+                disabled={selectionRange.end >= poem.verses.length}
+                className="p-0.5 rounded-full text-amber-200 hover:text-white disabled:opacity-30 transition"
+                title="Ampliar al siguiente verso"
+                aria-label="Ampliar al siguiente verso"
+              >
+                <Plus className="w-3 h-3" />
+              </button>
+            </div>
             <div className="h-3 w-px bg-amber-200/30"></div>
             <button
               onClick={() => onOpenNewComment(selectionRange)}

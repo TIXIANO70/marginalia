@@ -1,10 +1,10 @@
 /**
  * @file TranslationEditor.tsx
- * @description Columna derecha con selector de Modo Edición / Modo Lectura, texto centrado, título editable y soporte para comentar versos.
+ * @description Columna derecha con selector de Modo Edición / Modo Lectura, texto centrado, alineación vertical precisa de números y soporte para comentar versos individuales o rangos.
  */
 
-import React, { useState, useMemo } from 'react';
-import { PenLine, BookOpen, Edit3, Check, MessageSquarePlus, X, FileText } from 'lucide-react';
+import React, { useState, useMemo, useRef } from 'react';
+import { PenLine, BookOpen, Edit3, Check, MessageSquarePlus, X, FileText, Plus, Minus } from 'lucide-react';
 import { splitLines, AlignedVersePair } from '@/services/poemParser';
 import { VerseRange } from '@/domain/comment';
 import { VerseItem } from './VerseItem';
@@ -55,9 +55,14 @@ export const TranslationEditor: React.FC<TranslationEditorProps> = ({
   const [mode, setMode] = useState<'edit' | 'read'>('edit');
   const [isEditingLabel, setIsEditingLabel] = useState(false);
   const [customLabel, setCustomLabel] = useState(translationLabel);
+  const [isDragging, setIsDragging] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const lines = useMemo(() => splitLines(translation), [translation]);
   const linesCount = Math.max(lines.length, totalVerses);
+
+  // Altura calculada para asegurar que el editor y gutter crezcan naturalmente con el contenido
+  const editorContentHeight = Math.max(linesCount * 40 + 32, 600);
 
   const handleSaveLabel = () => {
     setIsEditingLabel(false);
@@ -71,8 +76,26 @@ export const TranslationEditor: React.FC<TranslationEditorProps> = ({
     return verseId >= focusedThreadRange.start && verseId <= focusedThreadRange.end;
   };
 
+  const handleMouseDownVerse = (verseId: number) => {
+    setIsDragging(true);
+    onSelectVerse(verseId, false);
+  };
+
+  const handleMouseEnterVerse = (verseId: number) => {
+    if (isDragging) {
+      onSelectVerse(verseId, true);
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
   return (
-    <div className="flex flex-col h-full bg-canto-paper/40 relative">
+    <div
+      onMouseUp={handleMouseUp}
+      className="flex flex-col h-full min-h-0 bg-canto-paper/40 relative"
+    >
       {/* Cabecera de la columna con título editable y botón de Modo Lectura / Modo Edición */}
       <div className="p-3 border-b border-canto-border/80 bg-canto-paper/60 flex items-center justify-between gap-2">
         {/* Título editable */}
@@ -146,37 +169,40 @@ export const TranslationEditor: React.FC<TranslationEditorProps> = ({
         className="flex-1 overflow-y-auto px-4 sm:px-8 py-8 pb-40 flex flex-col"
       >
         <div className="max-w-xl w-full mx-auto flex-1 flex flex-col">
-          {/* Título de la columna de traducción */}
-          <div className="text-center mb-8 pb-4 border-b border-canto-border/50">
+          {/* Título de la columna con altura mínima normalizada (96px) */}
+          <div className="text-center mb-8 pb-4 border-b border-canto-border/50 min-h-[96px] flex flex-col justify-center">
             <h2 className="font-classic text-2xl sm:text-3xl font-bold text-canto-text/90 tracking-wide mb-1">
               {customLabel}
             </h2>
             <p className="text-xs sm:text-sm text-canto-muted italic font-serif">
               {mode === 'read'
                 ? 'Modo lectura activado: seleccioná versos para comentar'
-                : 'Edición libre centrada con sincronización de renglones'}
+                : 'Edición libre centrada con numeración alineada'}
             </p>
           </div>
 
-          {/* MODO EDICIÓN: Textarea centrada con números de línea */}
+          {/* MODO EDICIÓN: Textarea centrada con números de línea pixel-perfect alineados */}
           {mode === 'edit' && (
-            <div className="relative flex-1 min-h-[500px] flex">
-              {/* Margen con números de línea alineados verticalmente */}
+            <div
+              className="relative flex-1 flex"
+              style={{ minHeight: `${editorContentHeight}px` }}
+            >
+              {/* Margen con números de línea: 40px por renglón, centrado vertical idéntico al texto */}
               <div
-                className="w-8 pr-2 select-none font-mono text-right text-canto-light/50 border-r border-canto-border/40 py-2.5 space-y-1.5"
+                className="w-10 pr-2 select-none font-mono text-right text-canto-light/50 border-r border-canto-border/40 py-2 flex flex-col"
                 aria-hidden="true"
               >
                 {Array.from({ length: linesCount }, (_, i) => (
                   <div
                     key={i + 1}
-                    className={`${sizeClasses.number} leading-relaxed h-[2rem] flex items-center justify-end`}
+                    className={`${sizeClasses.number} h-10 leading-10 flex items-center justify-end font-semibold`}
                   >
                     {i + 1}
                   </div>
                 ))}
               </div>
 
-              {/* Textarea centrada */}
+              {/* Textarea centrada: padding vertical de 8px (py-2) y line-height exacto de 40px (leading-10) */}
               <div className="flex-1 pl-4 relative">
                 {!translation.trim() && (
                   <div className="absolute top-4 left-0 right-0 text-center text-canto-light/60 pointer-events-none text-xs sm:text-sm italic flex items-center justify-center gap-2">
@@ -185,20 +211,22 @@ export const TranslationEditor: React.FC<TranslationEditorProps> = ({
                   </div>
                 )}
                 <textarea
+                  ref={textareaRef}
                   value={translation}
                   onChange={(e) => onChange(e.target.value)}
                   placeholder=""
                   aria-label="Editor de traducción de versos"
                   spellCheck="false"
-                  className={`w-full h-full min-h-[500px] resize-none bg-transparent outline-none text-center text-canto-text ${fontClass} ${sizeClasses.verse} leading-loose tracking-wide placeholder-transparent`}
+                  style={{ minHeight: `${editorContentHeight}px` }}
+                  className={`w-full h-full resize-none bg-transparent outline-none text-center text-canto-text ${fontClass} ${sizeClasses.verse} py-2 leading-10 tracking-wide placeholder-transparent`}
                 />
               </div>
             </div>
           )}
 
-          {/* MODO LECTURA: Cajas de versos centradas (VerseItem) con acentos y comentarios */}
+          {/* MODO LECTURA: Cajas de versos centradas (VerseItem) respetando estrofas */}
           {mode === 'read' && (
-            <div className="space-y-2 py-1">
+            <div className="space-y-1 py-1">
               {alignedPairs.map((pair) => {
                 const verseObj = {
                   id: pair.verseId,
@@ -207,18 +235,24 @@ export const TranslationEditor: React.FC<TranslationEditorProps> = ({
                   isStanzaEnd: pair.isStanzaEnd,
                 };
                 return (
-                  <VerseItem
+                  <div
                     key={pair.verseId}
-                    verse={verseObj}
-                    isSelected={isVerseSelected(pair.verseId)}
-                    hasComments={hasCommentsOnVerse(pair.verseId)}
-                    commentsCount={getCommentsCount(pair.verseId)}
-                    isFocused={isVerseFocused(pair.verseId)}
-                    fontClass={fontClass}
-                    sizeClasses={sizeClasses}
-                    onClick={(e) => onSelectVerse(pair.verseId, e.shiftKey)}
-                    onAddComment={() => onOpenNewComment({ start: pair.verseId, end: pair.verseId })}
-                  />
+                    className={pair.isStanzaEnd ? 'mb-6' : 'mb-1'}
+                  >
+                    <VerseItem
+                      verse={verseObj}
+                      isSelected={isVerseSelected(pair.verseId)}
+                      hasComments={hasCommentsOnVerse(pair.verseId)}
+                      commentsCount={getCommentsCount(pair.verseId)}
+                      isFocused={isVerseFocused(pair.verseId)}
+                      fontClass={fontClass}
+                      sizeClasses={sizeClasses}
+                      onClick={(e) => onSelectVerse(pair.verseId, e.shiftKey)}
+                      onMouseDown={() => handleMouseDownVerse(pair.verseId)}
+                      onMouseEnter={() => handleMouseEnterVerse(pair.verseId)}
+                      onAddComment={() => onOpenNewComment({ start: pair.verseId, end: pair.verseId })}
+                    />
+                  </div>
                 );
               })}
             </div>
@@ -235,6 +269,37 @@ export const TranslationEditor: React.FC<TranslationEditorProps> = ({
                 ? `Verso ${selectionRange.start} (Traducción)`
                 : `Versos ${selectionRange.start}–${selectionRange.end} (Traducción)`}
             </span>
+            {/* Controles para ampliar o contraer rango de versos en Modo Lectura */}
+            <div className="flex items-center gap-1 px-1 bg-white/10 rounded-full">
+              <button
+                type="button"
+                onClick={() => {
+                  if (selectionRange.start < selectionRange.end) {
+                    onSelectVerse(selectionRange.end - 1, true);
+                  }
+                }}
+                disabled={selectionRange.start === selectionRange.end}
+                className="p-0.5 rounded-full text-emerald-200 hover:text-white disabled:opacity-30 transition"
+                title="Reducir 1 verso"
+                aria-label="Reducir 1 verso"
+              >
+                <Minus className="w-3 h-3" />
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (selectionRange.end < totalVerses) {
+                    onSelectVerse(selectionRange.end + 1, true);
+                  }
+                }}
+                disabled={selectionRange.end >= totalVerses}
+                className="p-0.5 rounded-full text-emerald-200 hover:text-white disabled:opacity-30 transition"
+                title="Ampliar al siguiente verso"
+                aria-label="Ampliar al siguiente verso"
+              >
+                <Plus className="w-3 h-3" />
+              </button>
+            </div>
             <div className="h-3 w-px bg-emerald-200/30"></div>
             <button
               onClick={() => onOpenNewComment(selectionRange)}

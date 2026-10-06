@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { CommentsSidebar } from '@/components/comments/CommentsSidebar';
+import { NewCommentModal } from '@/components/comments/NewCommentModal';
 import { CommentThread } from '@/domain/comment';
 
 describe('Component: CommentsSidebar & CommentThreadCard', () => {
@@ -104,5 +105,50 @@ describe('Component: CommentsSidebar & CommentThreadCard', () => {
     fireEvent.click(resolveBtn);
 
     expect(onToggleResolve).toHaveBeenCalledWith('thread-1');
+  });
+});
+
+describe('Component: NewCommentModal con rango multiverso interactivo', () => {
+  it('debe permitir ajustar el rango de versos y enviar el comentario con el rango final', () => {
+    const onSubmit = vi.fn();
+    const onClose = vi.fn();
+
+    render(
+      <NewCommentModal
+        isOpen={true}
+        range={{ start: 2, end: 2 }}
+        column="original"
+        totalVerses={59}
+        onClose={onClose}
+        onSubmit={onSubmit}
+      />
+    );
+
+    expect(screen.getByText('Añadir Comentario')).toBeInTheDocument();
+    expect(screen.getByText('Verso 2 (Original)')).toBeInTheDocument();
+
+    // Ampliar con botón "+1 verso"
+    const addVerseBtn = screen.getByRole('button', { name: /\+1 verso/i });
+    fireEvent.click(addVerseBtn);
+
+    expect(screen.getByText('Versos 2 al 3 (Original)')).toBeInTheDocument();
+    expect(screen.getByText('2 versos seleccionados')).toBeInTheDocument();
+
+    // Completar autor y comentario
+    const authorInput = screen.getByPlaceholderText('Ej. Tiziano');
+    fireEvent.change(authorInput, { target: { value: 'Tiziano Espinoza' } });
+
+    const commentInput = screen.getByPlaceholderText(/Escribe tus observaciones/i);
+    fireEvent.change(commentInput, { target: { value: 'Análisis detallado de ambos versos' } });
+
+    // Publicar comentario
+    const submitBtn = screen.getByRole('button', { name: /Publicar Comentario/i });
+    fireEvent.click(submitBtn);
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      'Tiziano Espinoza',
+      'Análisis detallado de ambos versos',
+      { start: 2, end: 3 }
+    );
   });
 });

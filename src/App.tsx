@@ -215,6 +215,7 @@ export const App: React.FC = () => {
         isOpen={isNewCommentModalOpen}
         range={selectionRange}
         column={selectedColumn}
+        totalVerses={poem.verses.length}
         onClose={closeNewCommentModal}
         onSubmit={createThread}
       />
